@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerBehaviour : MonoBehaviour
 {
@@ -78,6 +79,10 @@ public class PlayerBehaviour : MonoBehaviour
         //        rigidbody.AddForce(Vector3.up * jumpForce);
         //    }
         //}
+        if (Input.GetButton("Cancel"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        }
     }
     void OnDrawGizmos()
     {
@@ -90,7 +95,7 @@ public class PlayerBehaviour : MonoBehaviour
     //    {
     //        isGrounded = true;
     //    }
-        
+
     //}
 
     //void OnCollisionStay(Collision other)
@@ -107,4 +112,5 @@ public class PlayerBehaviour : MonoBehaviour
     //        isGrounded = false;
     //    }
     //}
+
 }
