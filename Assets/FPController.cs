@@ -9,6 +9,11 @@ public class FPController : MonoBehaviour
     public AudioSource[] footsteps;
     public AudioSource jump;
     public AudioSource land;
+    public AudioSource ammoPickup;
+    public AudioSource healthPickup;
+    public AudioSource triggerSound;
+    public AudioSource reloadSound;
+
     float speed = 0.1f;
     float Xsensitivity = 2;
     float Ysensitivity = 2;
@@ -25,6 +30,19 @@ public class FPController : MonoBehaviour
     float x;
     float z;
 
+
+    //inventory
+    int ammo = 0;
+    int maxAmmo = 50;
+
+    int health = 80;
+    int maxHealth = 100;
+
+    int ammoClip = 0;
+    int ammoCLipMax = 10;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +50,8 @@ public class FPController : MonoBehaviour
         capsule = this.GetComponent<CapsuleCollider>();
         cameraRot = cam.transform.localRotation;
         characterRot = this.transform.localRotation;
+
+        // health == maxHealth;
     }
 
     // Update is called once per frame
@@ -42,12 +62,33 @@ public class FPController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) && !anim.GetBool("fire"))
         {
-            anim.SetTrigger("fire");
-            //shot.Play();
+            if (ammoClip > 0)
+            {
+                anim.SetTrigger("fire");
+                ammoClip--;
+                //shot.Play();
+            }
+            else if(anim.GetBool("arm"))
+            {
+                triggerSound.Play();
+            }
+            Debug.Log("Ammo Left in Clip:" + ammoClip);
         }
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R) && anim.GetBool("arm"))
+        {
             anim.SetTrigger("reload");
+            reloadSound.Play();
+            int amountNeed = ammoCLipMax - ammoClip;
+            int ammoAvailable = amountNeed < ammo ? amountNeed : ammo;
+            ammo -= ammoAvailable;
+            ammoClip += ammoAvailable;
+
+            Debug.Log("Ammo Left:" + ammo);
+            Debug.Log("Ammo in CLip:" + ammoClip);
+
+        }
+            
 
         if (Mathf.Abs(x) > 0 || Mathf.Abs(z) > 0)
         {
@@ -99,8 +140,6 @@ public class FPController : MonoBehaviour
         cam.transform.localRotation = cameraRot;
 
 
-
-
         x = Input.GetAxis("Horizontal") * speed;
         z = Input.GetAxis("Vertical") * speed;
 
@@ -136,11 +175,29 @@ public class FPController : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
+        if (col.gameObject.tag == "Ammo" && ammo < maxAmmo)
+        {
+            Destroy(col.gameObject);
+            ammoPickup.Play();
+
+            ammo = Mathf.Clamp(ammo+10, 0, maxAmmo);
+            Debug.Log("Ammo:" + ammo);
+        }
+
+        if (col.gameObject.tag == "MedKit" && health < maxHealth)
+        {
+            Destroy(col.gameObject);
+            healthPickup.Play();
+
+            health = Mathf.Clamp(health + 25, 0, maxHealth);
+            Debug.Log("Health:" + health);
+        }
+
         if (IsGrounded())
         {
             land.Play();
             if(anim.GetBool("walking"))
-                InvokeRepeating("PlayFootStepAudio", 0, 0.4f);
+                InvokeRepeating("PlayFootStepAudio", 0, 0.2f);
         }
     }
 
