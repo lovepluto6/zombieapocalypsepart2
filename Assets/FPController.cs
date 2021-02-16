@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class FPController : MonoBehaviour
 {
     public GameObject cam;
     public Animator anim;
+    public Slider healthBar;
+    public Text ammoReserves;
     public AudioSource[] footsteps;
     public AudioSource jump;
     public AudioSource land;
@@ -55,7 +58,10 @@ public class FPController : MonoBehaviour
         cameraRot = cam.transform.localRotation;
         characterRot = this.transform.localRotation;
 
-        // health == maxHealth;
+        //health == maxHealth;
+        healthBar.value = health;
+
+        ammoReserves.text = ammo +"";
     }
 
 
@@ -105,6 +111,7 @@ public class FPController : MonoBehaviour
             ammo -= ammoAvailable;
             ammoClip += ammoAvailable;
 
+            ammoReserves.text = ammo + "";
             Debug.Log("Ammo Left:" + ammo);
             Debug.Log("Ammo in CLip:" + ammoClip);
 
@@ -198,7 +205,8 @@ public class FPController : MonoBehaviour
             ammoPickup.Play();
 
             ammo = Mathf.Clamp(ammo+10, 0, maxAmmo);
-            Debug.Log("Ammo:" + ammo);
+            //Debug.Log("Ammo:" + ammo);
+            ammoReserves.text = ammo + "";
         }
 
         if (col.gameObject.tag == "MedKit" && health < maxHealth)
@@ -207,7 +215,8 @@ public class FPController : MonoBehaviour
             healthPickup.Play();
 
             health = Mathf.Clamp(health + 25, 0, maxHealth);
-            Debug.Log("Health:" + health);
+            //Debug.Log("Health:" + health);
+            healthBar.value = health;
         }
 
         if (IsGrounded())
