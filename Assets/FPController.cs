@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FPController : MonoBehaviour
 {
@@ -14,11 +15,14 @@ public class FPController : MonoBehaviour
     public AudioSource triggerSound;
     public AudioSource reloadSound;
 
+    public Vector3 velocity;
+
     float speed = 0.1f;
     float Xsensitivity = 2;
     float Ysensitivity = 2;
     float MinimumX = -90;
     float MaximumX = 90;
+
     Rigidbody rb;
     CapsuleCollider capsule;
     Quaternion cameraRot;
@@ -54,9 +58,26 @@ public class FPController : MonoBehaviour
         // health == maxHealth;
     }
 
+
+    bool IsGrounded()
+    {
+        RaycastHit hitInfo;
+        if (Physics.SphereCast(transform.position, capsule.radius, Vector3.down, out hitInfo,
+                (capsule.height / 2f) - capsule.radius + 0.1f))
+        {
+            return true;
+        }
+        return false;
+    }
     // Update is called once per frame
     void Update()
     {
+        
+        if (IsGrounded() && velocity.y < 0)
+        {
+            velocity.y = -2.0f;
+        }
+
         if (Input.GetKeyDown(KeyCode.F))
             anim.SetBool("arm", !anim.GetBool("arm"));
 
@@ -112,20 +133,12 @@ public class FPController : MonoBehaviour
                 CancelInvoke("PlayFootStepAudio");
         }
 
+
+        if (Input.GetButton("Cancel"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        }
     }
-
-    void PlayFootStepAudio()
-    {
-        AudioSource audioSource = new AudioSource();
-        int n = Random.Range(1, footsteps.Length);
-
-        audioSource = footsteps[n];
-        audioSource.Play();
-        footsteps[n] = footsteps[0];
-        footsteps[0] = audioSource;
-    }
-
-
     void FixedUpdate()
     {
         float yRot = Input.GetAxis("Mouse X") * Ysensitivity;
@@ -148,6 +161,20 @@ public class FPController : MonoBehaviour
         UpdateCursorLock();
     }
 
+    void PlayFootStepAudio()
+    {
+        AudioSource audioSource = new AudioSource();
+        int n = Random.Range(1, footsteps.Length);
+
+        audioSource = footsteps[n];
+        audioSource.Play();
+        footsteps[n] = footsteps[0];
+        footsteps[0] = audioSource;
+    }
+
+
+   
+
     Quaternion ClampRotationAroundXAxis(Quaternion q)
     {
         q.x /= q.w;
@@ -162,17 +189,7 @@ public class FPController : MonoBehaviour
         return q;
     }
 
-    bool IsGrounded()
-    {
-        RaycastHit hitInfo;
-        if (Physics.SphereCast(transform.position, capsule.radius, Vector3.down, out hitInfo,
-                (capsule.height / 2f) - capsule.radius + 0.1f))
-        {
-            return true;
-        }
-        return false;
-    }
-
+   
     void OnCollisionEnter(Collision col)
     {
         if (col.gameObject.tag == "Ammo" && ammo < maxAmmo)
@@ -235,5 +252,7 @@ public class FPController : MonoBehaviour
             Cursor.visible = true;
         }
     }
+
+     
 
 }

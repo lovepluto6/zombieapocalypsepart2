@@ -834,6 +834,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1913148674}
     - target: {fileID: 4308205265619169665, guid: 5e9aa9af7c59ef24c8fe23d360ada86a, type: 3}
+      propertyPath: velocity.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4308205265619169665, guid: 5e9aa9af7c59ef24c8fe23d360ada86a, type: 3}
       propertyPath: reloadSound
       value: 
       objectReference: {fileID: 1913148661}
